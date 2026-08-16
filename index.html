@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>PR•Game Booster</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',system-ui,sans-serif; user-select:none; }
+    body {
+      background:#0b0d14; color:#eaeef2; min-height:100vh; padding:16px 12px 120px 12px;
+      display:flex; flex-direction:column; align-items:center;
+    }
+    .app-container {
+      max-width:480px; width:100%; background:linear-gradient(145deg,#12161f,#0b0e16);
+      border-radius:40px 40px 28px 28px; padding:20px 18px 30px;
+      box-shadow:0 20px 40px rgba(0,0,0,0.8), inset 0 1px 2px rgba(255,255,255,0.04);
+      border:1px solid #2a3140; position:relative;
+    }
+    .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
+    .logo { display:flex; align-items:center; gap:10px; }
+    .logo i { font-size:28px; color:#f5a623; filter:drop-shadow(0 0 8px #f5a62366); }
+    .logo h1 { font-size:22px; font-weight:700; background:linear-gradient(135deg,#f5a623,#f7c948); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .header-right { display:flex; gap:12px; font-size:16px; color:#8e9bb5; cursor:pointer; }
+    .header-right i:hover { color:#f5a623; }
+    .stats-grid {
+      display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:8px;
+      background:#141b26; border-radius:24px; padding:14px 8px; margin-bottom:22px;
+      border:1px solid #253040;
+    }
+    .stat-item { text-align:center; }
+    .stat-item .value { font-size:18px; font-weight:700; color:#fff; }
+    .stat-item .label { font-size:9px; text-transform:uppercase; color:#7b8aa3; margin-top:4px; }
+    .stat-item .value i { font-size:16px; margin-right:4px; }
+    .stat-item .value .fa-bolt { color:#f5a623; }
+    .stat-item .value .fa-microchip { color:#4fc3f7; }
+    .stat-item .value .fa-thermometer-half { color:#ff7a7a; }
+    .stat-item .value .fa-battery-three-quarters { color:#66bb6a; }
+    .stat-item .value .fa-wifi { color:#81c784; }
+
+    .boost-btn {
+      background:linear-gradient(135deg,#f5a623,#e08e1a); border:none; border-radius:60px;
+      padding:14px 0; width:100%; font-size:18px; font-weight:700; color:#0b0d14;
+      display:flex; align-items:center; justify-content:center; gap:12px;
+      box-shadow:0 8px 24px rgba(245,166,35,0.35); cursor:pointer; transition:0.2s;
+      margin-bottom:24px; border:1px solid #fccb6b;
+    }
+    .boost-btn:active { transform:scale(0.96); }
+
+    .game-selector { display:flex; justify-content:space-between; gap:8px; margin-bottom:24px; }
+    .game-card {
+      flex:1; background:#1b2432; border-radius:20px; padding:12px 4px; text-align:center;
+      border:1px solid #2e3a4a; transition:0.2s; cursor:pointer;
+      box-shadow:inset 0 2px 4px rgba(0,0,0,0.4);
+    }
+    .game-card.active { border-color:#f5a623; background:#242f40; box-shadow:0 0 16px rgba(245,166,35,0.15); }
+    .game-card img { width:44px; height:44px; object-fit:contain; border-radius:12px; background:#0b0d14; padding:4px; margin-bottom:4px; }
+    .game-card span { display:block; font-size:11px; font-weight:600; color:#bcc8e0; }
+    .game-card.active span { color:#f5a623; }
+
+    .tune-panel {
+      background:#141b26; border-radius:28px; padding:18px 16px; margin-bottom:22px;
+      border:1px solid #253040;
+    }
+    .tune-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+    .tune-row:last-child { margin-bottom:0; }
+    .tune-label { display:flex; align-items:center; gap:10px; font-size:14px; font-weight:500; color:#c8d4e8; }
+    .tune-label i { width:20px; color:#f5a623; }
+    .tune-value { background:#1e293b; padding:4px 14px; border-radius:40px; font-size:13px; font-weight:600; color:#f5a623; border:1px solid #33435a; }
+    input[type="range"] {
+      -webkit-appearance:none; appearance:none; width:100%; height:4px;
+      background:#2a384d; border-radius:10px; outline:none; margin:8px 0 4px;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance:none; appearance:none; width:18px; height:18px; border-radius:50%;
+      background:#f5a623; cursor:pointer; box-shadow:0 0 12px #f5a623aa; border:2px solid #0b0d14;
+    }
+    .toggle-row { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #1f2a3a; }
+    .toggle-row:last-child { border-bottom:none; }
+    .toggle-label { display:flex; align-items:center; gap:10px; font-size:14px; color:#bcc8e0; }
+    .toggle-switch {
+      width:44px; height:24px; background:#29354a; border-radius:30px; position:relative;
+      cursor:pointer; transition:0.25s; border:1px solid #3d4c63;
+    }
+    .toggle-switch.active { background:#f5a623; border-color:#f5a623; }
+    .toggle-switch::after {
+      content:''; position:absolute; width:18px; height:18px; background:#0b0d14;
+      border-radius:50%; top:2px; left:2px; transition:0.25s; box-shadow:0 2px 4px rgba(0,0,0,0.4);
+    }
+    .toggle-switch.active::after { left:22px; }
+
+    .crosshair-toggle {
+      display:flex; justify-content:space-between; align-items:center;
+      background:#0f1621; border-radius:40px; padding:6px 16px 6px 8px; margin-top:8px;
+      border:1px solid #253040;
+    }
+    .crosshair-toggle .left { display:flex; align-items:center; gap:10px; font-size:13px; }
+    .crosshair-toggle .left i { color:#f5a623; }
+
+    .perm-badge { display:flex; flex-wrap:wrap; gap:8px; margin:14px 0 10px; }
+    .perm-badge span { background:#1b2432; padding:4px 14px; border-radius:40px; font-size:10px; color:#a5b6d1; border:1px solid #2d3c52; display:flex; align-items:center; gap:6px; }
+    .perm-badge i { color:#66bb6a; font-size:12px; }
+
+    .footer-note { font-size:10px; color:#4a5a72; text-align:center; margin-top:12px; }
+
+    /* ---- floating panel (in-game) ---- */
+    .float-panel {
+      position:fixed; bottom:80px; right:20px;
+      background:#141b26ee; backdrop-filter:blur(12px);
+      border:1px solid #3a4a60; border-radius:28px;
+      padding:10px 14px; display:flex; align-items:center; gap:16px;
+      box-shadow:0 12px 32px rgba(0,0,0,0.7); z-index:999;
+      cursor:grab; touch-action:none; transition:opacity 0.2s;
+      flex-wrap:wrap; justify-content:center;
+    }
+    .float-panel .fps-badge { background:#1e293b; padding:4px 12px; border-radius:40px; font-size:13px; font-weight:700; color:#f5a623; border:1px solid #3d506a; }
+    .float-panel i { color:#c8d4e8; font-size:18px; cursor:pointer; }
+    .float-panel i:hover { color:#f5a623; }
+    .float-panel .close-float { color:#ff7a7a; font-size:16px; }
+
+    /* دکمه شناور برای بازگرداندن پنل */
+    .float-toggle-btn {
+      position:fixed; bottom:20px; right:20px;
+      background:#f5a623; width:56px; height:56px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      box-shadow:0 4px 20px rgba(245,166,35,0.5);
+      cursor:pointer; z-index:998; border:2px solid #0b0d14;
+      transition:0.2s;
+    }
+    .float-toggle-btn i { font-size:28px; color:#0b0d14; }
+    .float-toggle-btn:active { transform:scale(0.9); }
+    .float-toggle-btn.hidden { display:none; }
+
+    #crosshair-dot {
+      position:fixed; width:10px; height:10px; background:#f5a623; border-radius:50%;
+      pointer-events:none; z-index:9999; box-shadow:0 0 20px #f5a62399;
+      display:none; transform:translate(-50%,-50%);
+    }
+
+    #toastMsg {
+      position:fixed; bottom:120px; left:50%; transform:translateX(-50%);
+      background:#1b2432ee; backdrop-filter:blur(8px);
+      padding:10px 24px; border-radius:60px; color:#eaeef2;
+      font-size:14px; font-weight:500; border:1px solid #f5a62355;
+      box-shadow:0 8px 24px rgba(0,0,0,0.6); z-index:99999;
+      transition:opacity 0.3s, transform 0.3s;
+      opacity:0; transform:translateX(-50%) translateY(20px);
+      pointer-events:none; white-space:nowrap;
+    }
+
+    @media (max-width:420px) {
+      .stats-grid { grid-template-columns:1fr 1fr; gap:12px; }
+      .game-card img { width:38px; height:38px; }
+      .float-panel { padding:8px 12px; gap:10px; bottom:100px; right:10px; }
+      .float-toggle-btn { width:48px; height:48px; bottom:16px; right:16px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-container" id="app">
+  <!-- header -->
+  <div class="header">
+    <div class="logo"><i class="fas fa-gamepad"></i><h1>PR•Game Booster</h1></div>
+    <div class="header-right"><i class="fas fa-sliders-h" id="settingsIcon"></i><i class="fas fa-user-cog"></i></div>
+  </div>
+
+  <!-- stats -->
+  <div class="stats-grid" id="statsGrid">
+    <div class="stat-item"><div class="value" id="cpuStat"><i class="fas fa-microchip"></i> 72%</div><div class="label">CPU</div></div>
+    <div class="stat-item"><div class="value" id="ramStat"><i class="fas fa-memory"></i> 63%</div><div class="label">RAM</div></div>
+    <div class="stat-item"><div class="value" id="tempStat"><i class="fas fa-thermometer-half"></i> 41°</div><div class="label">TEMP</div></div>
+    <div class="stat-item"><div class="value" id="batteryStat"><i class="fas fa-battery-three-quarters"></i> 88%</div><div class="label">BATTERY</div></div>
+  </div>
+
+  <!-- boost -->
+  <button class="boost-btn" id="boostNowBtn"><i class="fas fa-bolt"></i> BOOST NOW <i class="fas fa-arrow-right"></i></button>
+
+  <!-- game selector -->
+  <div class="game-selector" id="gameSelector">
+    <div class="game-card active" data-game="com.tencent.ig" data-name="PUBG">
+      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%231a1f2b'/%3E%3Ctext x='12' y='60' font-size='40' fill='%23f5a623' font-family='Arial'%3EPUBG%3C/text%3E%3C/svg%3E" alt="PUBG">
+      <span>PUBG</span>
+    </div>
+    <div class="game-card" data-game="com.dts.freefireth" data-name="Free Fire">
+      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%231a1f2b'/%3E%3Ctext x='8' y='60' font-size='36' fill='%23f5a623' font-family='Arial'%3EFFIRE%3C/text%3E%3C/svg%3E" alt="Free Fire">
+      <span>Free Fire</span>
+    </div>
+    <div class="game-card" data-game="com.activision.callofduty.shooter" data-name="Call of Duty">
+      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%231a1f2b'/%3E%3Ctext x='8' y='60' font-size='34' fill='%23f5a623' font-family='Arial'%3ECODM%3C/text%3E%3C/svg%3E" alt="Call of Duty">
+      <span>Call of Duty</span>
+    </div>
+  </div>
+
+  <!-- tune panel -->
+  <div class="tune-panel">
+    <div class="tune-row">
+      <div class="tune-label"><i class="fas fa-tachometer-alt"></i> FPS Unlocker</div>
+      <div class="tune-value" id="fpsValue">60</div>
+    </div>
+    <input type="range" id="fpsSlider" min="30" max="120" value="60" step="5">
+
+    <div class="tune-row" style="margin-top:12px;">
+      <div class="tune-label"><i class="fas fa-flag-checkered"></i> Frame Smooth</div>
+      <div class="tune-value" id="frameValue">Ultra</div>
+    </div>
+    <input type="range" id="frameSlider" min="0" max="2" value="2" step="1">
+
+    <div class="toggle-row" style="margin-top:12px;">
+      <div class="toggle-label"><i class="fas fa-bullseye"></i> Anti-Lag</div>
+      <div class="toggle-switch active" id="antiLagToggle"></div>
+    </div>
+    <div class="toggle-row">
+      <div class="toggle-label"><i class="fas fa-database"></i> GPU Acceleration</div>
+      <div class="toggle-switch active" id="gpuToggle"></div>
+    </div>
+    <div class="toggle-row">
+      <div class="toggle-label"><i class="fas fa-network-wired"></i> DNS Booster</div>
+      <div class="toggle-switch" id="dnsToggle"></div>
+    </div>
+  </div>
+
+  <!-- crosshair & extra -->
+  <div class="crosshair-toggle">
+    <div class="left"><i class="fas fa-crosshairs"></i> <span>صلیب نشانه‌گر</span></div>
+    <div style="display:flex; gap:12px;">
+      <i class="fas fa-circle" id="crosshairDotToggle" style="color:#f5a623; font-size:20px; cursor:pointer;"></i>
+      <i class="fas fa-undo-alt" id="resetCrosshair" style="color:#8e9bb5; font-size:16px; cursor:pointer;"></i>
+    </div>
+  </div>
+
+  <!-- permission badges -->
+  <div class="perm-badge">
+    <span><i class="fas fa-check-circle"></i> حافظه</span>
+    <span><i class="fas fa-check-circle"></i> ذخیره‌سازی</span>
+    <span><i class="fas fa-check-circle"></i> دوربین</span>
+    <span><i class="fas fa-check-circle"></i> میکروفون</span>
+    <span><i class="fas fa-check-circle"></i> مکان</span>
+    <span><i class="fas fa-check-circle"></i> شبکه</span>
+  </div>
+
+  <div class="footer-note">⚡ Overclock Android · بدون روت · مخصوص گیمرها</div>
+</div>
+
+<!-- پنل شناور درون‌بازی -->
+<div class="float-panel" id="floatPanel">
+  <i class="fas fa-grip-lines" id="dragHandle"></i>
+  <span class="fps-badge" id="floatFps"><i class="fas fa-eye"></i> 60 FPS</span>
+  <span id="floatPing" style="font-size:12px; background:#1e293b; padding:2px 10px; border-radius:20px; color:#81c784;"><i class="fas fa-wifi"></i> 35ms</span>
+  <i class="fas fa-tachometer-alt" id="floatFpsIcon"></i>
+  <i class="fas fa-times close-float" id="closeFloat"></i>
+</div>
+
+<!-- دکمه نمایش مجدد پنل -->
+<div class="float-toggle-btn" id="floatToggleBtn"><i class="fas fa-gamepad"></i></div>
+
+<!-- کراس‌هیر -->
+<div id="crosshair-dot"></div>
+
+<!-- توست -->
+<div id="toastMsg"></div>
+
+<script>
+  (function() {
+    'use strict';
+
+    // ---------- DOM refs ----------
+    const boostBtn = document.getElementById('boostNowBtn');
+    const gameCards = document.querySelectorAll('.game-card');
+    const fpsSlider = document.getElementById('fpsSlider');
+    const fpsValue = document.getElementById('fpsValue');
+    const frameSlider = document.getElementById('frameSlider');
+    const frameValue = document.getElementById('frameValue');
+    const antiLagToggle = document.getElementById('antiLagToggle');
+    const gpuToggle = document.getElementById('gpuToggle');
+    const dnsToggle = document.getElementById('dnsToggle');
+    const crosshairDot = document.getElementById('crosshair-dot');
+    const crosshairToggle = document.getElementById('crosshairDotToggle');
+    const resetCrosshair = document.getElementById('resetCrosshair');
+    const floatPanel = document.getElementById('floatPanel');
+    const closeFloat = document.getElementById('closeFloat');
+    const floatToggleBtn = document.getElementById('floatToggleBtn');
+    const dragHandle = document.getElementById('dragHandle');
+    const floatFps = document.getElementById('floatFps');
+    const floatPing = document.getElementById('floatPing');
+
+    // ---------- state ----------
+    let crosshairVisible = false;
+    let isDragging = false;
+    let offsetX = 0, offsetY = 0;
+    let panelVisible = true;
+    let currentGame = 'PUBG';
+
+    // ---------- ذخیره و بازیابی تنظیمات ----------
+    function saveSettings() {
+      const settings = {
+        fps: fpsSlider.value,
+        frame: frameSlider.value,
+        antiLag: antiLagToggle.classList.contains('active'),
+        gpu: gpuToggle.classList.contains('active'),
+        dns: dnsToggle.classList.contains('active'),
+        crosshair: crosshairVisible,
+        game: document.querySelector('.game-card.active')?.dataset.game || 'com.tencent.ig'
+      };
+      localStorage.setItem('prBoosterSettings', JSON.stringify(settings));
+    }
+
+    function loadSettings() {
+      const raw = localStorage.getItem('prBoosterSettings');
+      if (!raw) return;
+      try {
+        const s = JSON.parse(raw);
+        fpsSlider.value = s.fps || 60;
+        fpsValue.textContent = s.fps || 60;
+        frameSlider.value = s.frame || 2;
+        updateFrameLabel(s.frame || 2);
+        if (s.antiLag) antiLagToggle.classList.add('active'); else antiLagToggle.classList.remove('active');
+        if (s.gpu) gpuToggle.classList.add('active'); else gpuToggle.classList.remove('active');
+        if (s.dns) dnsToggle.classList.add('active'); else dnsToggle.classList.remove('active');
+        if (s.crosshair) {
+          crosshairVisible = true;
+          crosshairDot.style.display = 'block';
+          crosshairToggle.style.color = '#f5a623';
+        } else {
+          crosshairVisible = false;
+          crosshairDot.style.display = 'none';
+          crosshairToggle.style.color = '#8e9bb5';
+        }
+        // انتخاب بازی
+        if (s.game) {
+          gameCards.forEach(c => c.classList.remove('active'));
+          const target = document.querySelector(`.game-card[data-game="${s.game}"]`);
+          if (target) target.classList.add('active');
+        }
+        updateFloatFps();
+      } catch(e) { /* ignore */ }
+    }
+
+    function updateFrameLabel(val) {
+      const labels = ['Low', 'Medium', 'Ultra'];
+      frameValue.textContent = labels[parseInt(val)] || 'Ultra';
+    }
+
+    // ---------- float FPS update ----------
+    function updateFloatFps() {
+      const fps = fpsSlider.value;
+      floatFps.innerHTML = `<i class="fas fa-eye"></i> ${fps} FPS`;
+    }
+
+    // ---------- Toast ----------
+    function showToast(msg) {
+      const toast = document.getElementById('toastMsg');
+      toast.textContent = msg;
+      toast.style.opacity = '1';
+      toast.style.transform = 'translateX(-50%) translateY(0)';
+      clearTimeout(toast._timer);
+      toast._timer = setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(-50%) translateY(20px)';
+      }, 2500);
+    }
+
+    // ---------- APIهای واقعی ----------
+    // باتری
+    function updateBattery() {
+      if (navigator.getBattery) {
+        navigator.getBattery().then(battery => {
+          const level = Math.round(battery.level * 100);
+          const charging = battery.charging ? '⚡' : '';
+          document.getElementById('batteryStat').innerHTML = `<i class="fas fa-battery-three-quarters"></i> ${level}% ${charging}`;
+        }).catch(() => {});
+      }
+    }
+    // شبکه (نوع اتصال)
+    function updateNetwork() {
+      if (navigator.connection) {
+        const conn = navigator.connection;
+        const type = conn.effectiveType || 'unknown';
+        const down = conn.downlink ? conn.downlink + 'Mbps' : '';
+        document.querySelector('.stat-item .value#networkStat')?.remove();
+        // اضافه کردن به استات
+        const statsGrid = document.getElementById('statsGrid');
+        let netItem = document.getElementById('networkStat');
+        if (!netItem) {
+          const div = document.createElement('div');
+          div.className = 'stat-item';
+          div.innerHTML = `<div class="value" id="networkStat"><i class="fas fa-wifi"></i> ${type}</div><div class="label">NETWORK</div>`;
+          statsGrid.appendChild(div);
+        } else {
+          netItem.innerHTML = `<i class="fas fa-wifi"></i> ${type} ${down}`;
+        }
+      }
+    }
+
+    // شبیه‌سازی پینگ
+    function updatePing() {
+      const base = 20 + Math.floor(Math.random() * 60);
+      floatPing.innerHTML = `<i class="fas fa-wifi"></i> ${base}ms`;
+    }
+
+    // آمار CPU/RAM/TEMP شبیه‌سازی با تغییرات تصادفی
+    function updateStats() {
+      const cpu = 40 + Math.floor(Math.random() * 40);
+      const ram = 50 + Math.floor(Math.random() * 35);
+      const temp = 38 + Math.floor(Math.random() * 12);
+      document.getElementById('cpuStat').innerHTML = `<i class="fas fa-microchip"></i> ${cpu}%`;
+      document.getElementById('ramStat').innerHTML = `<i class="fas fa-memory"></i> ${ram}%`;
+      document.getElementById('tempStat').innerHTML = `<i class="fas fa-thermometer-half"></i> ${temp}°`;
+    }
+
+    // ---------- رویدادها ----------
+    // بازی
+    gameCards.forEach(card => {
+      card.addEventListener('click', function() {
+        gameCards.forEach(c => c.classList.remove('active'));
+        this.classList.add('active');
+        currentGame = this.dataset.name || 'بازی';
+        const fps = fpsSlider.value;
+        showToast(`🎮 ${currentGame} بوست شد! (FPS ${fps})`);
+        updateFloatFps();
+        saveSettings();
+        // شبیه‌سازی باز شدن بازی (لینک به مارکت)
+        const pkg = this.dataset.game;
+        if (pkg) {
+          // در اندروید با intent:// اما در وب لینک به بازار
+          const marketUrl = `https://cafebazaar.ir/app/${pkg}`;
+          // باز کردن در تب جدید
+          window.open(marketUrl, '_blank');
+          showToast(`در حال باز کردن ${currentGame} ...`);
+        }
+      });
+    });
+
+    // اسلایدرها
+    fpsSlider.addEventListener('input', function() {
+      fpsValue.textContent = this.value;
+      updateFloatFps();
+      saveSettings();
+    });
+
+    frameSlider.addEventListener('input', function() {
+      const val = parseInt(this.value);
+      updateFrameLabel(val);
+      saveSettings();
+    });
+
+    // کلیدهای toggle
+    function toggleSwitch(el) {
+      el.classList.toggle('active');
+      const label = el.parentElement.querySelector('.toggle-label span')?.textContent || '';
+      showToast(`${label} ${el.classList.contains('active') ? 'فعال' : 'غیرفعال'}`);
+      saveSettings();
+    }
+
+    antiLagToggle.addEventListener('click', function(e) { e.stopPropagation(); toggleSwitch(this); });
+    gpuToggle.addEventListener('click', function(e) { e.stopPropagation(); toggleSwitch(this); });
+    dnsToggle.addEventListener('click', function(e) { e.stopPropagation(); toggleSwitch(this); });
+
+    // Boost
+    boostBtn.addEventListener('click', function() {
+      const gameActive = document.querySelector('.game-card.active');
+      const gameName = gameActive ? gameActive.dataset.name : 'بازی';
+      showToast(`🚀 ${gameName} با FPS ${fpsSlider.value} بوست شد!`);
+      updateStats();
+      this.style.transform = 'scale(0.95)';
+      setTimeout(() => this.style.transform = '', 200);
+      saveSettings();
+    });
+
+    // کراس‌هیر
+    crosshairToggle.addEventListener('click', function() {
+      crosshairVisible = !crosshairVisible;
+      crosshairDot.style.display = crosshairVisible ? 'block' : 'none';
+      this.style.color = crosshairVisible ? '#f5a623' : '#8e9bb5';
+      showToast(crosshairVisible ? '🎯 نشانه‌گر فعال' : '🎯 نشانه‌گر غیرفعال');
+      saveSettings();
+    });
+
+    resetCrosshair.addEventListener('click', function() {
+      crosshairDot.style.top = '50%';
+      crosshairDot.style.left = '50%';
+      showToast('🔄 نشانه‌گر به مرکز بازگشت');
+    });
+
+    // حرکت کراس‌هیر
+    document.addEventListener('mousemove', function(e) {
+      if (crosshairVisible) {
+        crosshairDot.style.left = e.clientX + 'px';
+        crosshairDot.style.top = e.clientY + 'px';
+      }
+    });
+    document.addEventListener('touchmove', function(e) {
+      if (crosshairVisible) {
+        const touch = e.touches[0];
+        crosshairDot.style.left = touch.clientX + 'px';
+        crosshairDot.style.top = touch.clientY + 'px';
+      }
+    }, { passive: true });
+
+    // ---------- پنل شناور ----------
+    function toggleFloatPanel(show) {
+      if (show) {
+        floatPanel.style.display = 'flex';
+        floatToggleBtn.classList.add('hidden');
+        panelVisible = true;
+      } else {
+        floatPanel.style.display = 'none';
+        floatToggleBtn.classList.remove('hidden');
+        panelVisible = false;
+      }
+    }
+
+    closeFloat.addEventListener('click', function() {
+      toggleFloatPanel(false);
+      showToast('پنل بازی بسته شد');
+    });
+
+    floatToggleBtn.addEventListener('click', function() {
+      toggleFloatPanel(true);
+      showToast('پنل بازی باز شد');
+    });
+
+    // درگ پنل
+    function startDrag(e) {
+      e.preventDefault();
+      isDragging = true;
+      const rect = floatPanel.getBoundingClientRect();
+      const clientX = e.clientX || e.touches[0].clientX;
+      const clientY = e.clientY || e.touches[0].clientY;
+      offsetX = clientX - rect.left;
+      offsetY = clientY - rect.top;
+      floatPanel.style.cursor = 'grabbing';
+    }
+
+    function onDrag(e) {
+      if (!isDragging) return;
+      e.preventDefault();
+      const clientX = e.clientX || e.touches[0].clientX;
+      const clientY = e.clientY || e.touches[0].clientY;
+      let left = clientX - offsetX;
+      let top = clientY - offsetY;
+      left = Math.max(0, Math.min(window.innerWidth - floatPanel.offsetWidth, left));
+      top = Math.max(0, Math.min(window.innerHeight - floatPanel.offsetHeight, top));
+      floatPanel.style.left = left + 'px';
+      floatPanel.style.top = top + 'px';
+      floatPanel.style.right = 'auto';
+      floatPanel.style.bottom = 'auto';
+    }
+
+    function stopDrag() {
+      isDragging = false;
+      floatPanel.style.cursor = 'grab';
+    }
+
+    dragHandle.addEventListener('mousedown', startDrag);
+    dragHandle.addEventListener('touchstart', startDrag, { passive: false });
+    document.addEventListener('mousemove', onDrag);
+    document.addEventListener('touchmove', onDrag, { passive: false });
+    document.addEventListener('mouseup', stopDrag);
+    document.addEventListener('touchend', stopDrag);
+
+    // کلیک روی آیکون FPS
+    document.getElementById('floatFpsIcon').addEventListener('click', function() {
+      const badge = document.querySelector('.float-panel .fps-badge');
+      badge.style.display = badge.style.display === 'none' ? 'inline' : 'none';
+    });
+
+    // تنظیمات (آیکون)
+    document.getElementById('settingsIcon').addEventListener('click', function() {
+      showToast('⚙️ تنظیمات پیشرفته (به زودی)');
+    });
+
+    // ---------- اجرای اولیه ----------
+    loadSettings();
+    updateBattery();
+    updateNetwork();
+    updatePing();
+    updateStats();
+    updateFloatFps();
+    // نمایش پنل پس از 1 ثانیه
+    setTimeout(() => {
+      if (panelVisible) {
+        floatPanel.style.display = 'flex';
+        floatToggleBtn.classList.add('hidden');
+      } else {
+        floatPanel.style.display = 'none';
+        floatToggleBtn.classList.remove('hidden');
+      }
+    }, 1000);
+
+    // به‌روزرسانی دوره‌ای
+    setInterval(() => {
+      updateBattery();
+      updateNetwork();
+      updatePing();
+      updateStats();
+    }, 5000);
+
+    // درخواست حالت تمام‌صفحه (اختیاری)
+    if (document.documentElement.requestFullscreen) {
+      document.addEventListener('click', function fullscreenToggle() {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        }
+        document.removeEventListener('click', fullscreenToggle);
+      }, { once: true });
+    }
+
+    showToast('🎯 PR•Game Booster آماده‌ست!');
+
+  })();
+</script>
+</body>
+</html>
